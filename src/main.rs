@@ -5,6 +5,9 @@ mod gpu;
 use nannou::prelude::*;
 
 const EMA_ALPHA: f32 = 0.3;
+const GAIN_ATTACK: f32 = 0.05;
+const GAIN_RELEASE: f32 = 0.0005;
+const GAIN_FLOOR: f32 = 0.001;
 
 struct Model {
     _stream: cpal::Stream,
@@ -13,6 +16,7 @@ struct Model {
     sample_rate: u32,
     gpu: gpu::GpuState,
     smoothed_magnitudes: [f32; dsp::NUM_BINS],
+    peak_envelope: f32,
     tartini_gpu: [gpu::TartiniGpu; dsp::MAX_TARTINI],
     num_tartini: u32,
     camera_yaw: f32,
@@ -52,6 +56,7 @@ fn model(app: &App) -> Model {
         sample_rate,
         gpu,
         smoothed_magnitudes: [0.0; dsp::NUM_BINS],
+        peak_envelope: GAIN_FLOOR,
         tartini_gpu: [bytemuck::Zeroable::zeroed(); dsp::MAX_TARTINI],
         num_tartini: 0,
         camera_yaw: 0.0,
@@ -142,13 +147,34 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         }
     }
 
-    // --- Upload ---
+    // --- Auto-gain: track peak with fast attack, slow release ---
+    let current_peak = model
+        .smoothed_magnitudes
+        .iter()
+        .copied()
+        .fold(0.0f32, f32::max);
+
+    if current_peak > model.peak_envelope {
+        model.peak_envelope += (current_peak - model.peak_envelope) * GAIN_ATTACK;
+    } else {
+        model.peak_envelope += (current_peak - model.peak_envelope) * GAIN_RELEASE;
+    }
+    model.peak_envelope = model.peak_envelope.max(GAIN_FLOOR);
+
+    let gain = 1.0 / model.peak_envelope;
+
+    // --- Upload gained magnitudes ---
+    let mut upload_mags = [0.0f32; dsp::NUM_BINS];
+    for i in 0..dsp::NUM_BINS {
+        upload_mags[i] = model.smoothed_magnitudes[i] * gain;
+    }
+
     let window = app.main_window();
     let queue = window.queue();
     let time = app.elapsed_frames() as f32 / 60.0;
     model.gpu.upload(
         queue,
-        &model.smoothed_magnitudes,
+        &upload_mags,
         &model.tartini_gpu,
         view_proj.to_cols_array_2d(),
         cam_pos.to_array(),
