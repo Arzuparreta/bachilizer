@@ -1,5 +1,7 @@
 A real-time audio visualizer that maps frequency content onto a three-dimensional Tonnetz spiral. Harmonic and combination-tone relationships are rendered as additive Gaussian splats; the result is a fluid, perceptually grounded representation of spectral structure without post-processing.
 
+The explanation for musicians is that it visualizes harmonic relationship and movement between frequencies, rather than the regular frequency map. The main goal of this is bringing to a visualizer not just the shape of music, but it's meaning, movement and form.
+
 ## Architecture
 
 - **Audio thread:** Lock-free capture (cpal) into a ring buffer; no allocations, no mutexes. Prefers system loopback where supported (WASAPI, Pulse/PipeWire monitor), with microphone fallback.
