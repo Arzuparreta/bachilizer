@@ -30,6 +30,10 @@ fn main() {
     nannou::app(model).update(update).run();
 }
 
+fn use_mic() -> bool {
+    std::env::args().any(|a| a == "--mic")
+}
+
 fn model(app: &App) -> Model {
     let w_id = app
         .new_window()
@@ -44,7 +48,7 @@ fn model(app: &App) -> Model {
     let device = window.device();
     let msaa = window.msaa_samples();
 
-    let capture = audio::start_capture();
+    let capture = audio::start_capture(use_mic());
     let sample_rate = capture.sample_rate;
     let dsp_receiver = dsp::spawn_dsp_thread(capture.consumer);
 

@@ -10,11 +10,15 @@ pub struct AudioCapture {
     pub sample_rate: u32,
 }
 
-pub fn start_capture() -> AudioCapture {
+pub fn start_capture(use_mic: bool) -> AudioCapture {
     let host = cpal::default_host();
 
     #[cfg(target_os = "linux")]
-    let pre_ids = snapshot_source_output_ids();
+    let pre_ids = if use_mic {
+        None
+    } else {
+        Some(snapshot_source_output_ids())
+    };
 
     let (device, config) = select_device(&host);
 
@@ -50,7 +54,9 @@ pub fn start_capture() -> AudioCapture {
     stream.play().expect("failed to start audio stream");
 
     #[cfg(target_os = "linux")]
-    redirect_to_monitor(&pre_ids);
+    if let Some(ref ids) = pre_ids {
+        redirect_to_monitor(ids);
+    }
 
     AudioCapture {
         stream,
