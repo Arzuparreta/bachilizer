@@ -8,7 +8,7 @@ The explanation for musicians is that it visualizes harmonic relationship and mo
 
 - **Audio thread:** Lock-free capture (cpal) into a ring buffer; no allocations, no mutexes. On Linux, the stream is routed via `pactl move-source-output` after connection, targeting either the PipeWire monitor (loopback) or the configured default source (microphone).
 - **DSP thread:** Sliding-window FFT (Hanning, 4096 bins), magnitude spectrum, peak detection, and Tartini (sum/difference) tone derivation. Frames are sent by value over a bounded channel; no heap allocation in the hot loop.
-- **Main thread:** EMA-smoothed magnitudes pass through a peak-tracking auto-gain stage before upload. WGSL vertex shaders place billboard quads on a logarithmic spiral (pitch class vs. log frequency) and apply Gaussian falloff in the fragment stage. Additive blending yields a soft, glowing field without a post-processing pass.
+- **Main thread:** EMA-smoothed magnitudes pass through a peak-tracking auto-gain stage before upload. WGSL vertex shaders place billboard quads on a logarithmic spiral (pitch class vs. log frequency) and apply Gaussian falloff in the fragment stage. Additive blending yields a glowing field without a post-processing pass.
 
 Camera control is orbital (left-drag to rotate, scroll to zoom); Tartini combination tones are drawn with a distinct palette and a time-based pulse.
 
