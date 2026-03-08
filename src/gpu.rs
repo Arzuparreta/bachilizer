@@ -1,6 +1,10 @@
 use crate::dsp;
 use nannou::prelude::*;
 
+/// Frequency window (Hz) for the tonnetz display. Must match shader constants in tonnetz.wgsl.
+pub const MIN_FREQ: f32 = 40.0;
+pub const MAX_FREQ: f32 = 18000.0;
+
 #[repr(C)]
 #[derive(Clone, Copy, bytemuck::Pod, bytemuck::Zeroable)]
 struct Uniforms {

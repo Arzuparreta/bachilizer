@@ -29,6 +29,8 @@ struct VertexOutput {
 const PI: f32 = 3.14159265358979;
 const MIN_FREQ: f32 = 40.0;
 const MAX_FREQ: f32 = 18000.0;
+const LOG_MIN: f32 = 5.32192809;   // log2(40.0)
+const LOG_MAX: f32 = 14.1357093;   // log2(18000.0)
 
 // ---- helpers ----
 
@@ -68,11 +70,10 @@ fn quad_offset(vid: u32) -> vec2<f32> {
 
 fn tonnetz_pos(bin: u32) -> vec3<f32> {
     let freq = f32(bin) * (uniforms.sample_rate / uniforms.fft_size);
-    let log_min = log2(MIN_FREQ);
-    let log_max = log2(MAX_FREQ);
-    let t = (log2(max(freq, 1.0)) - log_min) / (log_max - log_min);
+    let safe_freq = max(freq, MIN_FREQ);
+    let t = (log2(safe_freq) - LOG_MIN) / (LOG_MAX - LOG_MIN);
     let y_pos = (t - 0.5) * 8.0;
-    let log_ratio = log2(freq / 440.0);
+    let log_ratio = log2(safe_freq / 440.0);
     let semitones = 12.0 * log_ratio;
     let pitch_class = ((semitones % 12.0) + 12.0) % 12.0;
     let theta = (2.0 * PI / 12.0) * pitch_class;
@@ -101,7 +102,7 @@ fn vs_main(
     let mag = magnitudes[instance];
 
     if freq < MIN_FREQ || freq > MAX_FREQ {
-        out.position = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+        out.position = vec4<f32>(2.0, 2.0, 2.0, 1.0);
         out.color = vec3<f32>(0.0);
         out.alpha = 0.0;
         out.uv = vec2<f32>(0.5, 0.5);
@@ -134,7 +135,7 @@ fn vs_tartini(
     let is_sum = instance % 2u;
 
     if tone_idx >= uniforms.num_tartini {
-        out.position = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+        out.position = vec4<f32>(2.0, 2.0, 2.0, 1.0);
         out.color = vec3<f32>(0.0);
         out.alpha = 0.0;
         out.uv = vec2<f32>(0.5, 0.5);
@@ -152,7 +153,7 @@ fn vs_tartini(
 
     let freq = f32(bin) * (uniforms.sample_rate / uniforms.fft_size);
     if freq < MIN_FREQ || freq > MAX_FREQ {
-        out.position = vec4<f32>(0.0, 0.0, 0.0, 1.0);
+        out.position = vec4<f32>(2.0, 2.0, 2.0, 1.0);
         out.color = vec3<f32>(0.0);
         out.alpha = 0.0;
         out.uv = vec2<f32>(0.5, 0.5);
