@@ -53,7 +53,3 @@ Command: cargo run --release -- --mic
 * **Left-Click & Drag:** Manually orbit the 3D Tonnetz spiral.
 * **Scroll Wheel:** Zoom in and out.
 * (When the mouse is released, the camera smoothly resumes its tempo-driven automatic rotation).
-
-## Status
-
-**Work in Progress (v1.0.0)** - Core DSP engine, lock-free audio routing, and GPU additive rendering pipeline are stable.
