@@ -1,4 +1,4 @@
-# Bachilizer
+# Synesthetic Visualizer
 
 A real-time audio visualizer that maps frequency content onto a three-dimensional Tonnetz spiral. 
 
