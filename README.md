@@ -23,4 +23,6 @@ cargo run              # system audio loopback (default)
 cargo run -- --mic     # microphone input
 ```
 
+Use **`--release`** for an optimized build (recommended for smooth real-time visualization): `cargo run --release` or `cargo run --release -- --mic`. Cargo flags go before `--`, app flags (e.g. `--mic`) after.
+
 Default window: 1280×720. On Linux, `pactl` must be available (PulseAudio or PipeWire with the PulseAudio compatibility layer). On Windows, WASAPI loopback is used automatically.
