@@ -16,6 +16,7 @@ pub struct DspFrame {
     pub magnitudes: [f32; NUM_BINS],
     pub num_tartini: usize,
     pub tartini_bins: [(usize, usize, f32); MAX_TARTINI],
+    pub bass_flux: f32,
 }
 
 impl DspFrame {
@@ -24,6 +25,7 @@ impl DspFrame {
             magnitudes: [0.0; NUM_BINS],
             num_tartini: 0,
             tartini_bins: [(0, 0, 0.0); MAX_TARTINI],
+            bass_flux: 0.0,
         }
     }
 }
@@ -53,6 +55,13 @@ pub fn spawn_dsp_thread(mut consumer: HeapCons<f32>, sample_rate: f32) -> Receiv
             let mag_scale = 2.0 / FFT_SIZE as f32;
             const PEAK_THRESHOLD: f32 = 0.001;
             const TOP_N: usize = 3;
+
+            let k_low = ((20.0 * FFT_SIZE as f32 / sample_rate).ceil() as usize).min(NUM_BINS - 1);
+            let k_high = ((150.0 * FFT_SIZE as f32 / sample_rate).floor() as usize)
+                .min(NUM_BINS - 1)
+                .max(k_low);
+
+            let mut prev_bass_energy = 0.0f32;
 
             loop {
                 let n = consumer.pop_slice(&mut read_buf);
@@ -89,6 +98,12 @@ pub fn spawn_dsp_thread(mut consumer: HeapCons<f32>, sample_rate: f32) -> Receiv
                     mag = mag.clamp(0.0, 5.0);
                     frame.magnitudes[k] = mag;
                 }
+
+                let current_bass_energy: f32 =
+                    frame.magnitudes[k_low..=k_high].iter().copied().sum();
+                let flux = (current_bass_energy - prev_bass_energy).max(0.0);
+                prev_bass_energy = current_bass_energy;
+                frame.bass_flux = flux;
 
                 // --- Peak detection: top 3 local maxima ---
                 let mut peaks = [(0usize, 0.0f32); TOP_N];

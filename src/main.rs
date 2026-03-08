@@ -8,6 +8,10 @@ const EMA_ALPHA: f32 = 0.3;
 const GAIN_ATTACK: f32 = 0.05;
 const GAIN_RELEASE: f32 = 0.0005;
 const GAIN_FLOOR: f32 = 0.001;
+const BASE_CAMERA_SPEED: f32 = 0.002;
+const BASS_FLUX_SENSITIVITY: f32 = 0.05;
+const CAMERA_VELOCITY_DAMPING: f32 = 0.05;
+const MAX_CAMERA_VELOCITY: f32 = 0.05;
 
 struct Model {
     _stream: cpal::Stream,
@@ -22,6 +26,7 @@ struct Model {
     camera_yaw: f32,
     camera_pitch: f32,
     camera_radius: f32,
+    camera_velocity: f32,
     mouse_pressed: bool,
     last_mouse: Vec2,
 }
@@ -66,6 +71,7 @@ fn model(app: &App) -> Model {
         camera_yaw: 0.0,
         camera_pitch: 0.3,
         camera_radius: 12.0,
+        camera_velocity: BASE_CAMERA_SPEED,
         mouse_pressed: false,
         last_mouse: Vec2::ZERO,
     }
@@ -97,12 +103,15 @@ fn event(_app: &App, model: &mut Model, event: WindowEvent) {
 fn update(app: &App, model: &mut Model, _update: Update) {
     // --- Camera orbit ---
     let current_mouse = vec2(app.mouse.x, app.mouse.y);
-    if model.mouse_pressed {
+    if app.mouse.buttons.left().is_down() {
         let delta = current_mouse - model.last_mouse;
         model.camera_yaw -= delta.x * 0.005;
         model.camera_pitch = (model.camera_pitch + delta.y * 0.005).clamp(-1.5, 1.5);
+        model.camera_velocity = 0.0;
     } else {
-        model.camera_yaw += 0.003;
+        model.camera_yaw += model.camera_velocity;
+        model.camera_velocity = model.camera_velocity
+            + (BASE_CAMERA_SPEED - model.camera_velocity) * CAMERA_VELOCITY_DAMPING;
     }
     model.last_mouse = current_mouse;
 
@@ -130,6 +139,9 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     }
 
     if let Some(frame) = latest {
+        model.camera_velocity = (model.camera_velocity + frame.bass_flux * BASS_FLUX_SENSITIVITY)
+            .min(MAX_CAMERA_VELOCITY);
+
         for i in 0..dsp::NUM_BINS {
             model.smoothed_magnitudes[i] = EMA_ALPHA * frame.magnitudes[i]
                 + (1.0 - EMA_ALPHA) * model.smoothed_magnitudes[i];
