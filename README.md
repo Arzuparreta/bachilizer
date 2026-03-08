@@ -1,4 +1,4 @@
-A real-time synesthetic audio visualizer that maps frequency content onto a three-dimensional Tonnetz spiral. Harmonic and combination-tone relationships are rendered as additive Gaussian splats; the result is a fluid, perceptually grounded representation of spectral structure without post-processing.
+A real-time audio visualizer that maps frequency content onto a three-dimensional Tonnetz spiral. Harmonic and combination-tone relationships are rendered as additive Gaussian splats; the result is a fluid, perceptually grounded representation of spectral structure without post-processing.
 
 ## Architecture
 
