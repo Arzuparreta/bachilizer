@@ -4,7 +4,7 @@ The explanation for musicians is that it visualizes harmonic relationship and mo
 
 ## Architecture
 
-- **Audio thread:** Lock-free capture (cpal) into a ring buffer; no allocations, no mutexes. Prefers system loopback where supported (WASAPI, Pulse/PipeWire monitor), with microphone fallback.
+- **Audio thread:** Lock-free capture (cpal) into a ring buffer; no allocations, no mutexes. Support for system loopback (WASAPI, Pulse/PipeWire monitor) and microphone.
 - **DSP thread:** Sliding-window FFT (Hanning, 4096 bins), magnitude spectrum, peak detection, and Tartini (sum/difference) tone derivation. Frames are sent by value over a bounded channel.
 - **Main thread:** EMA-smoothed magnitudes and Tartini data are uploaded to the GPU; WGSL vertex shaders place billboard quads on a logarithmic spiral (pitch class vs. log frequency) and apply Gaussian falloff in the fragment stage. Additive blending yields a soft, glowing field.
 
