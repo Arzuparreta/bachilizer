@@ -1,6 +1,6 @@
 # Synesthetic Visualizer
 
-[![Watch the demo](https://img.youtube.com/vi/vwDxYP1KkRQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=vwDxYP1KkRQ)
+[![Watch the demo](https://img.youtube.com/vi/qXijykH00oE/maxresdefault.jpg)](https://www.youtube.com/watch?v=qXijykH00oE)
 
 A real-time audio visualizer that maps frequency content onto a three-dimensional Tonnetz spiral. 
 
