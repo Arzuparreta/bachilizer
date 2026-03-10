@@ -111,7 +111,7 @@ fn vs_main(
 
     let base = tonnetz_pos(instance);
     let q = quad_offset(vid);
-    let pulse = 1.0 + uniforms.beat_pulse * 0.4;
+    let pulse = 1.0 + uniforms.beat_pulse * 0.7;
     let size = (0.03 + mag * 0.4) * pulse;
     out.position = billboard(base, q, size);
     out.uv = q + vec2<f32>(0.5, 0.5);
@@ -163,7 +163,7 @@ fn vs_tartini(
 
     let base = tonnetz_pos(bin);
     let q = quad_offset(vid);
-    let pulse = 1.0 + uniforms.beat_pulse * 0.5;
+    let pulse = 1.0 + uniforms.beat_pulse * 0.8;
     let size = (0.05 + mag * 0.6) * pulse;
     out.position = billboard(base, q, size);
     out.uv = q + vec2<f32>(0.5, 0.5);
